@@ -1,4 +1,3 @@
-
 async function loadSidebar() {
   try {
     const response = await fetch('./sidebar.html');
@@ -16,6 +15,9 @@ async function loadSidebar() {
 }
 
 function highlightCurrentLink() {
+  // Remove active de todos primeiro
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+
   const currentPage = window.location.pathname.split('/').pop()
   let linkId = ''
   if (currentPage === 'overview.html' || currentPage === 'index.html' || currentPage === '') {
@@ -27,6 +29,7 @@ function highlightCurrentLink() {
   } else if (currentPage === 'profile.html') {
     linkId = 'link-profile'
   }
+  
   if (linkId) {
     const linkAtivo = document.getElementById(linkId)
     if (linkAtivo) linkAtivo.classList.add('active')
