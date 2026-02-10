@@ -1,31 +1,9 @@
-# Sistema de Gestão Financeira - Versão Corrigida
+# Sistema de Gestão Financeira 
 
-## 📋 Sobre as Correções
-
-Este sistema foi corrigido e refatorado para seguir a arquitetura MVC e implementar as seguintes funcionalidades:
-
-### ✅ Correções Implementadas
-
-1. **Compras adicionadas ao gasto mensal**: Todas as compras do mês atual são contabilizadas corretamente no dashboard.
-
-2. **Assinaturas filtradas corretamente**: Apenas compras com categoria "Assinatura" ou "assinatura" são contadas como assinaturas.
-
-3. **Atualização de carteira ao editar compras**: Quando o valor de uma compra é editado, a carteira é ajustada automaticamente:
-   - Aumento de valor → Debita a diferença da carteira
-   - Redução de valor → Credita a diferença na carteira
-   - Validação de saldo insuficiente
-
-4. **Atualização de carteira ao editar faturas pagas**: Faturas já pagas têm a carteira ajustada quando o valor é editado.
-
-5. **Arquitetura MVC**: Código reorganizado seguindo o padrão Model-View-Controller com camada de Services.
-
-6. **Exclusão com reembolso**: Ao deletar compras ou faturas pagas, o valor é devolvido automaticamente à carteira.
-
-7. **Transações atômicas**: Operações críticas usam transações do Prisma para garantir consistência.
-
+1. **Arquitetura MVC**: Código reorganizado seguindo o padrão Model-View-Controller com camada de Services.
 ---
 
-## 🏗️ Arquitetura
+##  Arquitetura
 
 ```
 src/
@@ -56,27 +34,21 @@ src/
 
 ---
 
-## 🚀 Instalação
+## Instalação
 
 ### Pré-requisitos
 - Node.js 18+ instalado
 - PostgreSQL instalado e rodando
-- npm ou yarn
+- npm 
 
 ### Passos
 
-1. **Extrair o arquivo ZIP**
-   ```bash
-   unzip Financial-Management-System-Corrigido.zip
-   cd Financial-Management-System-Corrigido
-   ```
-
-2. **Instalar dependências**
+1. **Instalar dependências**
    ```bash
    npm install
    ```
 
-3. **Configurar variáveis de ambiente**
+2. **Configurar variáveis de ambiente**
    
    Edite o arquivo `.env` com suas credenciais do banco:
    ```env
@@ -84,39 +56,33 @@ src/
    JWT_SECRET="sua_chave_secreta_aqui"
    ```
 
-4. **Executar migrações do banco**
+3. **Executar migrações do banco**
    ```bash
-   npx prisma migrate deploy
+   npx prisma migrate dev
    ```
 
-5. **Gerar Prisma Client**
+4. **Gerar Prisma Client**
    ```bash
    npx prisma generate
    ```
 
-6. **(Opcional) Popular banco com dados de teste**
+5. **(Opcional) Popular banco com dados de teste**
    ```bash
    npx prisma db seed
    ```
 
-7. **Iniciar o servidor**
+6. **Iniciar o servidor**
    ```bash
-   npm start
+   npm start / npm run dev 
    ```
 
-8. **Acessar o sistema**
+7. **Acessar o sistema**
    
    Abra o navegador em: `http://localhost:3000`
 
 ---
 
-## 📚 Documentação
-
-### Documentos Incluídos
-
-1. **ANALISE_PROBLEMAS.md**: Análise detalhada dos problemas identificados
-2. **CORRECOES_IMPLEMENTADAS.md**: Documentação completa de todas as correções
-3. **TESTES_VALIDACAO.md**: Guia de testes manuais para validar as correções
+## Documentação
 
 ### Estrutura de Pastas
 
@@ -134,27 +100,7 @@ src/
 ├── package.json            # Dependências
 ├── .env                    # Variáveis de ambiente
 ├── README.md               # Este arquivo
-├── ANALISE_PROBLEMAS.md    # Análise dos problemas
-├── CORRECOES_IMPLEMENTADAS.md  # Documentação das correções
-└── TESTES_VALIDACAO.md     # Guia de testes
 ```
-
----
-
-## 🧪 Testes
-
-Para validar as correções, siga o guia completo em **TESTES_VALIDACAO.md**.
-
-### Testes Principais
-
-1. Criar compras no mês atual e verificar "Gasto do Mês"
-2. Criar compras com categoria "Assinatura" e verificar contagem
-3. Editar valor de compra e verificar ajuste na carteira
-4. Editar valor de fatura paga e verificar ajuste na carteira
-5. Deletar compras/faturas e verificar reembolso
-
----
-
 ## 📊 Endpoints da API
 
 ### Autenticação
@@ -181,7 +127,7 @@ Para validar as correções, siga o guia completo em **TESTES_VALIDACAO.md**.
 
 ---
 
-## 🔧 Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 - **Backend**: Node.js + Express
 - **ORM**: Prisma
@@ -191,7 +137,7 @@ Para validar as correções, siga o guia completo em **TESTES_VALIDACAO.md**.
 
 ---
 
-## 📝 Notas Importantes
+## Notas Importantes
 
 ### Transações Atômicas
 
@@ -215,43 +161,3 @@ O sistema valida:
 - Isolamento de dados por usuário
 
 ---
-
-## 🐛 Reportar Bugs
-
-Se encontrar algum problema, documente:
-1. Passos para reproduzir
-2. Comportamento esperado
-3. Comportamento observado
-4. Screenshots (se aplicável)
-
----
-
-## 📄 Licença
-
-Este projeto é privado e confidencial.
-
----
-
-## 👥 Suporte
-
-Para dúvidas ou suporte, consulte a documentação completa nos arquivos:
-- `ANALISE_PROBLEMAS.md`
-- `CORRECOES_IMPLEMENTADAS.md`
-- `TESTES_VALIDACAO.md`
-
----
-
-## 🎯 Próximos Passos Recomendados
-
-1. **Testes Automatizados**: Implementar testes unitários e de integração
-2. **Documentação da API**: Adicionar Swagger/OpenAPI
-3. **Validação Robusta**: Usar bibliotecas como Joi ou Zod
-4. **Cache**: Implementar Redis para melhor performance
-5. **Logs**: Adicionar sistema de logs estruturado
-6. **Monitoramento**: Implementar APM (Application Performance Monitoring)
-
----
-
-**Versão**: 2.0 (Corrigida e Refatorada)  
-**Data**: Fevereiro 2026  
-**Status**: ✅ Pronto para uso
