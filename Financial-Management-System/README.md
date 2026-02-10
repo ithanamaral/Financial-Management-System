@@ -101,7 +101,7 @@ src/
 ├── .env                    # Variáveis de ambiente
 ├── README.md               # Este arquivo
 ```
-## 📊 Endpoints da API
+## Endpoints da API
 
 ### Autenticação
 - `POST /api/auth/register` - Registrar usuário
