@@ -12,14 +12,14 @@ class FinanceService {
     const beginningMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     const endMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59, 999);
 
-    const [wallet, monthExpenses, pendingInvoice, subscriptionsCount, lastShopping] = await Promise.all([
+    const [wallet, monthShopping, monthPaidInvoices, pendingInvoice, subscriptionsCount, lastShopping] = await Promise.all([
       
       // Saldo da Carteira
       prisma.wallet.findUnique({
         where: { userId: userId }
       }),
 
-      // Gastos do Mês (todas as compras do mês atual)
+      // 1. Compras do Mês (Shopping)
       prisma.shopping.aggregate({
         _sum: { value: true },
         where: {
@@ -31,7 +31,21 @@ class FinanceService {
         }
       }),
 
-      // Faturas Pendentes
+      // 2. Faturas Pagas no Mês (Invoices)
+      // Consideramos faturas cujo vencimento ou pagamento (se houvesse data de pagamento) seja no mês atual
+      prisma.invoice.aggregate({
+        _sum: { amount: true },
+        where: {
+          userId: userId,
+          status: { in: ['PAID', 'OVERDUE'] },
+          dueDate: {
+            gte: beginningMonth,
+            lte: endMonth
+          }
+        }
+      }),
+
+      // Faturas Pendentes (Total geral pendente)
       prisma.invoice.aggregate({
         _sum: { amount: true },
         where: {
@@ -58,9 +72,14 @@ class FinanceService {
       })
     ]);
 
+    // Soma total: Compras + Faturas Pagas no mês
+    const totalShopping = monthShopping._sum.value ? Number(monthShopping._sum.value) : 0;
+    const totalPaidInvoices = monthPaidInvoices._sum.amount ? Number(monthPaidInvoices._sum.amount) : 0;
+    const totalExpenses = totalShopping + totalPaidInvoices;
+
     return {
       balance: wallet ? Number(wallet.balance) : 0,
-      expenses: monthExpenses._sum.value ? Number(monthExpenses._sum.value) : 0,
+      expenses: totalExpenses, // 'Gastos do Mês' agora inclui faturas pagas
       pending: pendingInvoice._sum.amount ? Number(pendingInvoice._sum.amount) : 0,
       subscriptions: subscriptionsCount, 
       transactions: lastShopping 
@@ -69,35 +88,23 @@ class FinanceService {
 
   /**
    * Adiciona valor à carteira do usuário
-   * @param {number} userId - ID do usuário
-   * @param {number} amount - Valor a ser adicionado
-   * @returns {Promise<Object>} Carteira atualizada
    */
   async addToWallet(userId, amount) {
     if (!amount || isNaN(amount) || amount <= 0) {
       throw new Error("Valor inválido");
     }
 
-    // Busca ou cria a carteira do usuário
-    let wallet = await prisma.wallet.findUnique({
-      where: { userId: userId }
-    });
+    let wallet = await prisma.wallet.findUnique({ where: { userId: userId } });
 
     if (!wallet) {
       wallet = await prisma.wallet.create({
-        data: {
-          userId: userId,
-          balance: 0
-        }
+        data: { userId: userId, balance: 0 }
       });
     }
 
-    // Atualiza o saldo
     const updatedWallet = await prisma.wallet.update({
       where: { userId: userId },
-      data: {
-        balance: wallet.balance + parseFloat(amount)
-      }
+      data: { balance: { increment: parseFloat(amount) } }
     });
 
     return {
@@ -108,35 +115,21 @@ class FinanceService {
 
   /**
    * Remove valor da carteira do usuário
-   * @param {number} userId - ID do usuário
-   * @param {number} amount - Valor a ser removido
-   * @returns {Promise<Object>} Carteira atualizada
    */
   async removeFromWallet(userId, amount) {
     if (!amount || isNaN(amount) || amount <= 0) {
       throw new Error("Valor inválido");
     }
 
-    // Busca a carteira do usuário
-    let wallet = await prisma.wallet.findUnique({
-      where: { userId: userId }
-    });
+    let wallet = await prisma.wallet.findUnique({ where: { userId: userId } });
 
-    if (!wallet) {
-      throw new Error("Carteira não encontrada");
-    }
-
-    // Verifica se há saldo suficiente
-    if (wallet.balance < parseFloat(amount)) {
+    if (!wallet || Number(wallet.balance) < parseFloat(amount)) {
       throw new Error("Saldo insuficiente");
     }
 
-    // Atualiza o saldo
     const updatedWallet = await prisma.wallet.update({
       where: { userId: userId },
-      data: {
-        balance: wallet.balance - parseFloat(amount)
-      }
+      data: { balance: { decrement: parseFloat(amount) } }
     });
 
     return {
