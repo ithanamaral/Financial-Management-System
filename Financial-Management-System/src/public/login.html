@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Área do Cliente</title>
+    
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <section id="login" class="container">
+    
+    <div class="card login-card" role="dialog" aria-labelledby="tituloLogin" aria-describedby="subLogin">
+      
+      <div class="login-hero">
+        <div class="chip" aria-hidden="true">🏦 Seu sistema de gestão pessoal</div>
+        <h1 id="loginTitle">Bem-vindo à sua Área de acompanhamento</h1>
+        <p id="subLogin">Acompanhe compras, faturas, contas e muito mais em um só lugar.</p>
+        <div class="divider"></div>
+        <ul class="muted">
+          <li>Autenticação simples</li>
+          <li>Visão geral das suas finanças</li>
+          <li>Gerenciamento de faturas e pagamentos</li>
+        </ul>
+      </div>
+
+      <form id="loginForm" class="login-form" autocomplete="on">
+        <h2>Entrar</h2>
+        
+        <div class="row" style="gap:8px">
+          <div style="flex:1">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="Email" required />
+          </div>
+        </div>
+
+        <label for="password">Senha</label>
+        <input id="password" name="password" type="password" placeholder="password" required />
+        
+        <div class="divider"></div>
+        
+        <button class="btn" type="submit">Acessar</button>
+        <p class="muted" style="margin-top:10px">Dica: Use seu email e senha cadastrados.</p>
+      </form>
+
+    </div>
+  </section>
+
+  <script src="js/login.js"></script>
+</body>
+</html>

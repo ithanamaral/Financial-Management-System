@@ -1,0 +1,64 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "windows"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  name      String
+  email     String     @unique
+  password  String
+  role      Role       @default(USER)
+  createdAt DateTime   @default(now())
+  cpf       String?
+  telefone  String?
+  invoices  Invoice[]
+  shoppings Shopping[]
+  wallet    Wallet?
+}
+
+model Invoice {
+  id          Int           @id @default(autoincrement())
+  description String
+  amount      Decimal       @db.Decimal(10, 2)
+  dueDate     DateTime
+  status      InvoiceStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  userId      Int
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Shopping {
+  id          Int      @id @default(autoincrement())
+  description String
+  value       Decimal  @db.Decimal(10, 2)
+  date        DateTime
+  userId      Int
+  category    String?
+  status      String
+  store       String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Wallet {
+  id      Int     @id @default(autoincrement())
+  balance Decimal @default(0.00) @db.Decimal(15, 2)
+  userId  Int     @unique
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+}

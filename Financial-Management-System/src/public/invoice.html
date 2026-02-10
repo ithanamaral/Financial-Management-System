@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Faturas | Finance.io</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  
+  <div id="app">
+    <div class="app-shell">
+      <div id="sidebar-container"></div>
+      <main>
+        <header class="topbar">
+          <h2>Minhas Faturas</h2>
+        </header>
+        <div class="divider" style="margin:14px 0"></div>
+        <section id="invoice-page">
+          <div class="card">
+            
+            <div class="toolbar" style="padding: 16px; border-bottom: 1px solid var(--border);">
+              <input id="searchInvoice" placeholder="Pesquisar descrição..." style="max-width: 260px;" />
+              <select id="filterStatus" style="max-width: 180px;">
+                <option value="">Todos os status</option>
+                <option value="Pago">Pagas</option>
+                <option value="Pendente">Pendentes</option>
+                <option value="Atrasada">Atrasadas</option>
+              </select>
+              <button class="btn" id="addInvoice">Nova Fatura</button>
+              <button class="btn" id="btnPaySelected" style="display: none; background: var(--brand);">Pagar Selecionadas</button>
+              <button class="btn danger" id="btnDeleteSelected" style="display: none;">Deletar Selecionado</button>
+            </div>
+
+            <table class="table" id="tblInvoices" aria-label="Invoice Table">
+              <thead>
+                <tr>
+                 <th style="width: 40px;"><input type="checkbox" id="selectAll"></th>
+                  <th>Descrição</th>
+                  <th>Vencimento</th>
+                  <th>Status</th>
+                  <th>Valor</th>
+                  <th style="width: 60px;">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                 <tr>
+                   <td colspan="4" style="text-align: center; color: #888;">Carregando dados...</td>
+                </tr>
+              </tbody>
+            </table>
+
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="js/dashboard.js"></script>
+  <script src="js/invoice.js"></script>
+</body>
+</html>
