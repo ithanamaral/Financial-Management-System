@@ -63,4 +63,4 @@ exports.deleteMultipleInvoices = async (req, res) => {
     console.error('Erro ao excluir faturas:', error);
     res.status(500).json({ message: error.message || 'Erro interno ao processar a exclusão.' });
   }
-};
+}
