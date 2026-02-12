@@ -41,6 +41,18 @@ exports.updateShopping = async (req, res) => {
   }
 };
 
+exports.payShoppings = async (req, res) => {
+  try {
+    const { ids } = req.body;
+    const userId = Number(req.userId);
+    const result = await shoppingService.payShoppings(ids, userId);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Erro ao pagar compras:', error);
+    res.status(400).json({ error: error.message || 'Erro ao processar pagamento' });
+  }
+};
+
 exports.deleteMultipleShopp = async (req, res) => {
   try {
     const { ids } = req.body;

@@ -170,6 +170,12 @@ tr:has(.row-checkbox:checked) {
     background: rgba(239, 68, 68, 0.05); /* Um tom de vermelho */
 }
 
+#btnPaySelected{
+    transition: all 0.2s ease;
+    animation: fadeIn 0.3s ease;
+    background-color: #0756b1;
+}
+
 #btnDeleteSelected {
     transition: all 0.2s ease;
     animation: fadeIn 0.3s ease;

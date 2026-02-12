@@ -90,7 +90,7 @@ src/
 /
 ├── src/                    # Código-fonte
 │   ├── config/             # Configurações
-│   ├── services/           # Lógica de negócio (NOVO)
+│   ├── services/           # Lógica de negócio
 │   ├── controllers/        # Controllers
 │   ├── routes/             # Rotas da API
 │   ├── middlewares/        # Middlewares
@@ -99,7 +99,7 @@ src/
 ├── prisma/                 # Schema e migrações
 ├── package.json            # Dependências
 ├── .env                    # Variáveis de ambiente
-├── README.md               # Este arquivo
+├── README.md               
 ```
 ## Endpoints da API
 

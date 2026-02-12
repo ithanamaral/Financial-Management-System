@@ -1,4 +1,3 @@
-
 async function loadShoppingSummary() {
     const token = localStorage.getItem('token')
     try {
@@ -41,15 +40,17 @@ async function fullOutShoppings(shoppingList) {
         const store = shopping.store || 'Sem loja';
         const dateRaw = shopping.date ? new Date(shopping.date) : new Date();
         const formattedDate = dateRaw.toLocaleDateString('pt-BR');
-        const status = shopping.status || 'Pago';
+        const status = shopping.status || 'PENDENTE';
         const value = (shopping.value !== undefined) ? shopping.value : (shopping.amount || 0);
         const formattedValue = formatCoin(value)
+        
         let statusClass = 'status'
-        if (status.toLowerCase() === 'pago') statusClass += ' pago';
+        if (status.toUpperCase() === 'PAGO') statusClass += ' pago';
+        else if (status.toUpperCase() === 'PENDENTE') statusClass += ' pendente';
 
         tbody.innerHTML += `
         <tr>
-          <td><input type="checkbox" class="row-checkbox" data-id="${id}"></td>
+          <td><input type="checkbox" class="row-checkbox" data-id="${id}" data-status="${status.toUpperCase()}"></td>
           <td>${description}</td>
           <td>${store}</td>
           <td>${formattedDate}</td>
@@ -68,19 +69,33 @@ function setupCheckboxListeners() {
     const selectAll = document.getElementById('selectAll');
     const rowCheckboxes = document.querySelectorAll('.row-checkbox');
     const btnDelete = document.getElementById('btnDeleteSelected');
+    const btnPay = document.getElementById('btnPaySelected');
+    
     const updateUI = () => {
-        const checkedCount = document.querySelectorAll('.row-checkbox:checked').length;
+        const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
+        const checkedCount = checkedBoxes.length;
+        
+        // Mostrar/Esconder botão de deletar
         if (btnDelete) {
             btnDelete.style.display = checkedCount > 0 ? 'inline-block' : 'none';
             btnDelete.innerText = checkedCount > 1 ? `Deletar (${checkedCount})` : 'Deletar Selecionado';
         }
+        
+        // Mostrar/Esconder botão de pagar (apenas se houver pendentes selecionados)
+        if (btnPay) {
+            const pendingSelected = Array.from(checkedBoxes).filter(cb => cb.dataset.status === 'PENDENTE').length;
+            btnPay.style.display = pendingSelected > 0 ? 'inline-block' : 'none';
+            btnPay.innerText = pendingSelected > 1 ? `Pagar (${pendingSelected})` : 'Pagar Selecionado';
+        }
     };
+    
     if (selectAll) {
         selectAll.onclick = () => {
             rowCheckboxes.forEach(cb => cb.checked = selectAll.checked);
             updateUI();
         };
     }
+    
     rowCheckboxes.forEach(cb => {
         cb.onclick = () => {
             if (!cb.checked) selectAll.checked = false;
@@ -136,7 +151,11 @@ function openEditShoppingModal(shopping) {
         { label: 'Loja', type: 'text', id: 'editStore', value: shopping.store },
         { label: 'Categoria', type: 'text', id: 'editCategory', value: shopping.category },
         { label: 'Valor (R$) *', type: 'number', id: 'editValue', required: true, step: '0.01', value: shopping.value },
-        { label: 'Data', type: 'date', id: 'editDate', value: shopping.date ? shopping.date.split('T')[0] : '' }
+        { label: 'Data', type: 'date', id: 'editDate', value: shopping.date ? shopping.date.split('T')[0] : '' },
+        { label: 'Status', type: 'select', id: 'editStatus', options: [
+            { value: 'PENDENTE', label: 'Pendente', selected: shopping.status.toUpperCase() === 'PENDENTE' },
+            { value: 'PAGO', label: 'Pago', selected: shopping.status.toUpperCase() === 'PAGO' }
+        ]}
     ], () => handleUpdateShopping(shopping.id));
 }
 
@@ -146,6 +165,7 @@ async function handleUpdateShopping(id) {
     const category = document.getElementById('editCategory').value;
     const value = document.getElementById('editValue').value;
     const date = document.getElementById('editDate').value;
+    const status = document.getElementById('editStatus').value;
     const token = localStorage.getItem('token');
     try {
         const response = await fetch(`http://localhost:3000/api/shopping/updateShopping/${id}`, {
@@ -154,7 +174,7 @@ async function handleUpdateShopping(id) {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ description, store, category, value: parseFloat(value), date })
+            body: JSON.stringify({ description, store, category, value: parseFloat(value), date, status })
         });
         if (response.ok) {
             alert('Compra atualizada!');
@@ -170,13 +190,45 @@ async function handleUpdateShopping(id) {
     }
 }
 
+async function paySelectedShoppings() {
+    const selected = Array.from(document.querySelectorAll('.row-checkbox:checked'))
+        .filter(cb => cb.dataset.status === 'PENDENTE')
+        .map(cb => cb.dataset.id);
+        
+    if (selected.length === 0) return;
+    if (!confirm(`Deseja pagar ${selected.length} compra(s) selecionada(s)? O valor será debitado da sua carteira.`)) return;
+    
+    const token = localStorage.getItem('token');
+    try {
+        const response = await fetch('http://localhost:3000/api/shopping/pay', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ ids: selected })
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+            alert(data.message || 'Compras pagas com sucesso!');
+            loadShoppingSummary();
+        } else {
+            alert(data.error || 'Erro ao processar pagamento');
+        }
+    } catch (error) {
+        console.error(error);
+        alert('Erro ao processar pagamento');
+    }
+}
+
 async function deleteSelectedShoppings() {
     const selected = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.dataset.id);
     if (selected.length === 0) return;
     if (!confirm(`Deseja excluir ${selected.length} item(ns)?`)) return;
     const token = localStorage.getItem('token');
     try {
-        const response = await fetch('http://localhost:3000/api/shopping/shopping/deleteMultipleShopp', {
+        const response = await fetch('http://localhost:3000/api/shopping', {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -200,6 +252,10 @@ document.addEventListener('DOMContentLoaded', () => {
     loadShoppingSummary();
     const btnNew = document.getElementById('btnNewShopping');
     if (btnNew) btnNew.addEventListener('click', openNewShoppingModal);
+    
     const btnDel = document.getElementById('btnDeleteSelected');
     if (btnDel) btnDel.addEventListener('click', deleteSelectedShoppings);
+    
+    const btnPay = document.getElementById('btnPaySelected');
+    if (btnPay) btnPay.addEventListener('click', paySelectedShoppings);
 });
