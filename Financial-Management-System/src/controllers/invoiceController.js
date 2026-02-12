@@ -1,7 +1,5 @@
 const invoiceService = require('../services/invoiceService')
 
-
-
 exports.getInvoice = async (req, res) => {
   try {
     const userId = parseInt(req.userId);

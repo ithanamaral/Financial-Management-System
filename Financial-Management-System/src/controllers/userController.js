@@ -3,10 +3,10 @@ const prisma = new PrismaClient()
 
 exports.getUser = async (req, res) => {
   try {
-    const userId = Number(req.userId);
+    const userId = Number(req.userId)
 
     if (isNaN(userId)) {
-        return res.status(400).json({ message: 'ID do usuário inválido no token' });
+        return res.status(400).json({ message: 'ID do usuário inválido no token' })
     }
 
     const user = await prisma.user.findUnique({
@@ -27,7 +27,7 @@ exports.getUser = async (req, res) => {
 
   }catch (error) {
     console.error(error)
-    res.status(500).json({ message: 'Erro interno no servidor' });
+    res.status(500).json({ message: 'Erro interno no servidor' })
   }
 }
 
@@ -36,7 +36,7 @@ exports.updateUser = async (req, res) => {
   const { name, email, cpf, telefone } = req.body
 
   if (isNaN(userId)) {
-      return res.status(400).json({ message: 'ID do usuário inválido no token' });
+      return res.status(400).json({ message: 'ID do usuário inválido no token' })
   }
 
   try {

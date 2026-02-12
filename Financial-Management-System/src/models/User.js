@@ -10,8 +10,8 @@ class User {
         this.password = password
         this.telefone = telefone
         this.role = role  
-        this.shopping = shopping || [];
-        this.wallet = wallet || { balance: 0, currency: 'BRL' };
+        this.shopping = shopping || []
+        this.wallet = wallet || { balance: 0, currency: 'BRL' }
         this.invoices = invoices  
     }
 }

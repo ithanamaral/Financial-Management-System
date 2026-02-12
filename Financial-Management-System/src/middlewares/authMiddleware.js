@@ -32,12 +32,12 @@ module.exports = (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    req.userId = decoded.id; 
+    req.userId = decoded.id 
 
-    return next();
+    return next()
 
   } catch (err) {
-    console.log('ERRO FATAL NA VERIFICAÇÃO:', err.message);
+    console.log('ERRO FATAL NA VERIFICAÇÃO:', err.message)
     
     if (err.message === 'jwt expired') {
         return res.status(401).json({ erro: 'Sessão expirada. Faça login novamente.' })
@@ -45,4 +45,4 @@ module.exports = (req, res, next) => {
     
     return res.status(401).json({ erro: 'Token inválido' })
   }
-};
+}
