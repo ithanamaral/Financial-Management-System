@@ -55,7 +55,7 @@ label { display: block; margin: 6px 0 8px; color: var(--sub); font-size: .9rem; 
 .divider { height: 1px; background: var(--border); margin: 16px 0; }
 .help { display: flex; justify-content: space-between; align-items: center; }
 
-/* App */
+/* Geral */
 #app { display: block; min-height: 100vh; }
 .app-shell { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
 aside { border-right: 1px solid var(--border); padding: 18px; position: sticky; top: 0; height: 100vh; }
@@ -64,7 +64,7 @@ nav a { display: flex; gap: 10px; align-items: center; padding: 10px 12px; margi
 nav a:hover { 
   background: rgba(255, 255, 255, 0.05); 
   border-color: var(--border);
-  transform: translateX(4px);
+  transform: translateX(4px); 
 }
 
 nav a.active { 
@@ -142,7 +142,6 @@ input[type="checkbox"]:checked::after {
     font-size: 12px;
 }
 
-/* --- Ícones de Ação --- */
 .action-icon {
     cursor: pointer;
     padding: 6px;
@@ -174,6 +173,7 @@ tr:has(.row-checkbox:checked) {
 #btnDeleteSelected {
     transition: all 0.2s ease;
     animation: fadeIn 0.3s ease;
+    background-color: #e74c3c;
 }
 
 @keyframes fadeIn {
@@ -186,7 +186,7 @@ tr:has(.row-checkbox:checked) {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;  /* Um pouco menor para caber bem na pilha */
+  width: 28px;  
   height: 24px;
   border-radius: 4px;
   border: none;
