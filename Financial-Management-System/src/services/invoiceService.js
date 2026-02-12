@@ -25,9 +25,8 @@ class InvoiceService {
       orderBy: {
         dueDate: 'asc'
       }
-    });
+    })
 
-    // Mapear amount para value para manter compatibilidade com o frontend
     const formattedInvoices = invoiceItems.map(inv => ({
       ...inv,
       value: Number(inv.amount)

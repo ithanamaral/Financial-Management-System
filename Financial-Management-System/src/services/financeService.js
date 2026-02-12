@@ -79,16 +79,13 @@ class FinanceService {
 
     return {
       balance: wallet ? Number(wallet.balance) : 0,
-      expenses: totalExpenses, // 'Gastos do Mês' agora inclui faturas pagas
+      expenses: totalExpenses, 
       pending: pendingInvoice._sum.amount ? Number(pendingInvoice._sum.amount) : 0,
       subscriptions: subscriptionsCount, 
       transactions: lastShopping 
-    };
+    }
   }
 
-  /**
-   * Adiciona valor à carteira do usuário
-   */
   async addToWallet(userId, amount) {
     if (!amount || isNaN(amount) || amount <= 0) {
       throw new Error("Valor inválido");
@@ -99,44 +96,41 @@ class FinanceService {
     if (!wallet) {
       wallet = await prisma.wallet.create({
         data: { userId: userId, balance: 0 }
-      });
+      })
     }
 
     const updatedWallet = await prisma.wallet.update({
       where: { userId: userId },
       data: { balance: { increment: parseFloat(amount) } }
-    });
+    })
 
     return {
       balance: Number(updatedWallet.balance),
       message: "Depósito realizado com sucesso"
-    };
+    }
   }
 
-  /**
-   * Remove valor da carteira do usuário
-   */
   async removeFromWallet(userId, amount) {
     if (!amount || isNaN(amount) || amount <= 0) {
-      throw new Error("Valor inválido");
+      throw new Error("Valor inválido")
     }
 
     let wallet = await prisma.wallet.findUnique({ where: { userId: userId } });
 
     if (!wallet || Number(wallet.balance) < parseFloat(amount)) {
-      throw new Error("Saldo insuficiente");
+      throw new Error("Saldo insuficiente")
     }
 
     const updatedWallet = await prisma.wallet.update({
       where: { userId: userId },
       data: { balance: { decrement: parseFloat(amount) } }
-    });
+    })
 
     return {
       balance: Number(updatedWallet.balance),
       message: "Saque realizado com sucesso"
-    };
+    }
   }
 }
 
-module.exports = new FinanceService();
+module.exports = new FinanceService()
