@@ -26,8 +26,6 @@ Neste trabalho não serão considerados:
 ## 4. Protótipo
 Protótipos para as páginas de **Dashboard (Overview), Gestão de Faturas, Lista de Compras e Perfil do Usuário** foram elaborados e implementados utilizando HTML, CSS, JS, podendo ser encontrados na pasta `src/public` do projeto, com a lógica de navegação centralizada no arquivo `dashboard.js`.
 
-```
-
 1. **Arquitetura MVC**: Código reorganizado seguindo o padrão Model-View-Controller com camada de Services.
 ---
 
