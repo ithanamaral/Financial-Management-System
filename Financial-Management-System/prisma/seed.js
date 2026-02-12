@@ -82,7 +82,6 @@ async function main() {
       },
       shoppings: {
         create: [
-          // ADICIONADO: store e status
           { description: 'Macbook Pro', category: 'Trabalho', value: 12000.00, date: new Date('2024-02-01'), store: 'Apple Store', status: 'Concluído' },
           { description: 'Cadeira Herman Miller', category: 'Conforto', value: 8000.00, date: new Date('2024-02-02'), store: 'Herman Miller', status: 'Concluído' },
           { description: 'Spotify Premium', category: 'Assinatura', value: 21.90, date: new Date(), store: 'Spotify', status: 'Concluído' }
