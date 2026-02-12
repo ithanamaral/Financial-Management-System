@@ -13,16 +13,5 @@ class User {
         this.shopping = shopping || [];
         this.wallet = wallet || { balance: 0, currency: 'BRL' };
         this.invoices = invoices  
-
-        Object.assign(this, authenticatable)
     }
-
-    isAdmin() {
-        return this.role === Role.ADMIN
-    }
-
-    getUser(){
-        
-    }
-
 }
