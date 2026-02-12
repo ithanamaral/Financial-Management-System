@@ -30,7 +30,7 @@ class InvoiceService {
     const formattedInvoices = invoiceItems.map(inv => ({
       ...inv,
       value: Number(inv.amount)
-    }));
+    }))
 
     return formattedInvoices;
   }
@@ -56,12 +56,12 @@ class InvoiceService {
         dueDate: dueDate ? new Date(dueDate) : new Date(),
         status: status || 'PENDING'
       }
-    });
+    })
 
     return {
       invoice: newInvoice,
       message: 'Fatura criada com sucesso'
-    };
+    }
   }
 
   /**
@@ -80,37 +80,36 @@ class InvoiceService {
         id: Number(invoiceId),
         userId: userId 
       }
-    });
+    })
 
     if (!originalInvoice) {
-      throw new Error('Fatura não encontrada');
+      throw new Error('Fatura não encontrada')
     }
 
-    // Verifica se o valor foi alterado e a fatura já estava paga
-    const valueChanged = amount && parseFloat(amount) !== Number(originalInvoice.amount);
-    const wasPaid = originalInvoice.status === 'PAID' || originalInvoice.status === 'OVERDUE';
-    let walletAdjustment = 0;
+    const valueChanged = amount && parseFloat(amount) !== Number(originalInvoice.amount)
+    const wasPaid = originalInvoice.status === 'PAID' || originalInvoice.status === 'OVERDUE'
+    let walletAdjustment = 0
 
     if (valueChanged && wasPaid) {
-      const newAmount = parseFloat(amount);
-      const oldAmount = Number(originalInvoice.amount);
-      walletAdjustment = newAmount - oldAmount;
+      const newAmount = parseFloat(amount)
+      const oldAmount = Number(originalInvoice.amount)
+      walletAdjustment = newAmount - oldAmount
 
       // Se o novo valor é maior, precisa debitar mais da carteira
       if (walletAdjustment > 0) {
         const wallet = await prisma.wallet.findUnique({
           where: { userId: userId }
-        });
+        })
 
         if (!wallet || Number(wallet.balance) < walletAdjustment) {
-          throw new Error('Saldo insuficiente para o novo valor');
+          throw new Error('Saldo insuficiente para o novo valor')
         }
       }
     }
 
-    // Atualiza a fatura e a carteira em uma transação
+    // Atualiza a fatura e a carteira 
     const result = await prisma.$transaction(async (tx) => {
-      // Atualiza a fatura
+
       const updatedInvoice = await tx.invoice.update({
         where: { id: Number(invoiceId) },
         data: {
@@ -121,7 +120,7 @@ class InvoiceService {
         }
       });
 
-      // Se o valor mudou e a fatura estava paga, ajusta a carteira
+      // Se o valor mudou e a fatura estava paga, ajustamos a carteira
       if (valueChanged && wasPaid) {
         const wallet = await tx.wallet.findUnique({
           where: { userId: userId }
@@ -132,7 +131,7 @@ class InvoiceService {
           data: {
             balance: Number(wallet.balance) - walletAdjustment
           }
-        });
+        })
       }
 
       return updatedInvoice;
@@ -143,7 +142,7 @@ class InvoiceService {
       message: (valueChanged && wasPaid)
         ? 'Fatura atualizada e carteira ajustada' 
         : 'Fatura atualizada com sucesso'
-    };
+    }
   }
 
   /**
@@ -154,7 +153,7 @@ class InvoiceService {
    */
   async payInvoices(ids, userId) {
     if (!ids || !Array.isArray(ids)) {
-      throw new Error('IDs não fornecidos');
+      throw new Error('IDs não fornecidos')
     }
 
     const invoices = await prisma.invoice.findMany({
@@ -162,13 +161,13 @@ class InvoiceService {
         id: { in: ids.map(id => Number(id)) }, 
         userId: userId 
       }
-    });
+    })
 
     const totalToPay = invoices.reduce((acc, inv) => acc + Number(inv.amount), 0);
 
-    const wallet = await prisma.wallet.findUnique({ where: { userId } });
+    const wallet = await prisma.wallet.findUnique({ where: { userId } })
     if (!wallet || Number(wallet.balance) < totalToPay) {
-      throw new Error('Saldo insuficiente na carteira');
+      throw new Error('Saldo insuficiente na carteira')
     }
 
     const today = new Date();
@@ -183,20 +182,19 @@ class InvoiceService {
         return prisma.invoice.update({
           where: { id: inv.id },
           data: { status: isLate ? 'OVERDUE' : 'PAID' }
-        });
+        })
       })
-    ]);
+    ])
 
     return {
       message: 'Faturas pagas com sucesso e valor debitado da carteira',
       totalPaid: totalToPay
-    };
+    }
   }
 
   /**
    * Deleta múltiplas faturas e devolve o valor para a carteira se já foram pagas
-   * @param {Array<number>} ids - IDs das faturas
-   * @param {number} userId - ID do usuário
+   * @param {Array<number>} ids 
    * @returns {Promise<Object>} Resultado da exclusão
    */
   async deleteMultipleInvoices(ids, userId) {
@@ -206,19 +204,17 @@ class InvoiceService {
 
     const numericIds = ids.map(id => Number(id));
 
-    // Busca as faturas para somar os valores das que foram pagas
     const invoices = await prisma.invoice.findMany({
       where: {
         id: { in: numericIds },
         userId: userId
       }
-    });
+    })
 
     const totalToRefund = invoices
       .filter(inv => inv.status === 'PAID' || inv.status === 'OVERDUE')
       .reduce((acc, inv) => acc + Number(inv.amount), 0);
 
-    // Deleta as faturas e devolve o valor para a carteira em uma transação
     const result = await prisma.$transaction(async (tx) => {
       // Deleta as faturas
       const deleteResult = await tx.invoice.deleteMany({
@@ -226,13 +222,13 @@ class InvoiceService {
           id: { in: numericIds },
           userId: userId 
         }
-      });
+      })
 
-      // Devolve o valor para a carteira (apenas faturas pagas)
+      // Devolve o valor para a carteira 
       if (totalToRefund > 0) {
         const wallet = await tx.wallet.findUnique({
           where: { userId: userId }
-        });
+        })
 
         if (wallet) {
           await tx.wallet.update({
@@ -240,19 +236,19 @@ class InvoiceService {
             data: {
               balance: Number(wallet.balance) + totalToRefund
             }
-          });
+          })
         }
       }
 
       return deleteResult;
-    });
+    })
 
     return {
       count: result.count,
       message: totalToRefund > 0 
         ? `${result.count} faturas excluídas e R$ ${totalToRefund.toFixed(2)} devolvido à carteira`
         : `${result.count} faturas excluídas com sucesso`
-    };
+    }
   }
 }
 
