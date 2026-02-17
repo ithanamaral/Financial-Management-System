@@ -19,12 +19,13 @@ class FinanceService {
         where: { userId: userId }
       }),
 
-      // Compras PAGAS do Mês 
+      // Compras PAGAS do Mês (Excluindo depósitos/retiradas)
       prisma.shopping.aggregate({
         _sum: { value: true },
         where: {
           userId: userId,
           status: 'PAGO',
+          category: { notIn: ['saque/depósito', 'Depósito', 'Retirada'] },
           date: {
             gte: beginningMonth,
             lte: endMonth
@@ -90,7 +91,8 @@ class FinanceService {
       date: inv.dueDate,
       category: `Fatura (${inv.status})`,
       value: inv.amount,
-      type: 'invoice'
+      type: 'invoice',
+      isExpense: true
     }))
 
     const shoppingTransactions = lastShopping.map(shop => ({
@@ -98,7 +100,8 @@ class FinanceService {
       date: shop.date,
       category: shop.category || 'Geral',
       value: shop.value,
-      type: 'shopping'
+      type: 'shopping',
+      isExpense: shop.category !== 'saque/depósito' && shop.description !== 'Depósito'
     }))
 
     // Combinar e ordenar por data decrescente
@@ -106,12 +109,31 @@ class FinanceService {
       .sort((a, b) => new Date(b.date) - new Date(a.date))
       .slice(0, 10)
 
+    // Verificar faturas próximas ao vencimento (próximos 3 dias)
+    const threeDaysFromNow = new Date()
+    threeDaysFromNow.setDate(today.getDate() + 3)
+    
+    const upcomingInvoices = await prisma.invoice.findMany({
+      where: {
+        userId: userId,
+        status: 'PENDING',
+        dueDate: {
+          gte: today,
+          lte: threeDaysFromNow
+        }
+      }
+    })
+
     return {
       balance: wallet ? Number(wallet.balance) : 0,
       expenses: totalExpenses, // 'Gastos do Mês' inclui compras pagas e faturas pagas
       pending: pendingInvoice._sum.amount ? Number(pendingInvoice._sum.amount) : 0,
       subscriptions: subscriptionsCount, 
-      transactions: allTransactions 
+      transactions: allTransactions,
+      alerts: upcomingInvoices.map(inv => ({
+        message: `Fatura "${inv.description}" vence em ${new Date(inv.dueDate).toLocaleDateString('pt-BR')}`,
+        type: 'warning'
+      }))
     }
   }
 

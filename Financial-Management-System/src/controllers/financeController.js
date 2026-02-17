@@ -36,3 +36,14 @@ exports.removeFromWallet = async (req, res) => {
     res.status(400).json({ error: error.message || "Erro ao remover valor da carteira" })
   }
 }
+
+exports.clearRecents = async (req, res) => {
+  try {
+    const userId = req.userId
+    const result = await financeService.clearRecents(userId)
+    res.json(result)
+  } catch (error) {
+    console.error('Erro ao limpar movimentações recentes:', error)
+    res.status(500).json({ error: error.message || "Erro ao limpar movimentações recentes" })
+  }
+}

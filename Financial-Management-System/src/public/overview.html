@@ -19,6 +19,7 @@
           <h2>Visão Geral</h2>
         </header>
         <section id="overview-page">
+          <div id="alerts-container" style="margin-bottom: 16px;"></div>
           <div class="cards">
             <div class="card stat">
               <h3>Gasto do mês</h3>
@@ -56,6 +57,9 @@
           <div class="card">
             <div class="toolbar" style="padding: 16px; border-bottom: 1px solid var(--border);">
               <h3 style="margin: 0; font-size: 1.1rem;">Movimentações Recentes</h3>
+              <button onclick="exportTransactions()" class="btn ghost" style="padding: 6px 12px; font-size: 0.8rem; display: flex; align-items: center; gap: 6px;">
+                📥 Exportar CSV
+              </button>
             </div>
             <table class="table" id="tblRecents" aria-label="Recent Transactions Table">
               <thead>

@@ -10,7 +10,7 @@ module.exports = (req, res, next) => {
     return res.status(401).json({ erro: 'Token não fornecido' })
   }
 
-  console.log('Header recebido:', authHeader)
+  //console.log('Header recebido:', authHeader)
 
   const parts = authHeader.split(' ')
   if (parts.length !== 2) {
@@ -25,7 +25,7 @@ module.exports = (req, res, next) => {
 
   // Verificar o Segredo e a Validade do token
   try {
-    console.log('Tentando validar com JWT_SECRET:', process.env.JWT_SECRET)
+    //console.log('Tentando validar com JWT_SECRET:', process.env.JWT_SECRET)
     
     if (!process.env.JWT_SECRET) {
       throw new Error('JWT_SECRET não está definido no .env')

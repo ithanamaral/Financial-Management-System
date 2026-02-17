@@ -72,6 +72,20 @@ async function loadFinancialSummary() {
             elWallet.innerText = formatCoin(data.balance || 0)
             updateWalletEmoji(data.balance || 0)
         }
+        
+        // Exibir Alertas
+        const alertsContainer = document.getElementById('alerts-container')
+        if (alertsContainer && data.alerts && data.alerts.length > 0) {
+            alertsContainer.innerHTML = data.alerts.map(alert => `
+                <div class="card" style="padding: 12px 20px; border-left: 4px solid var(--warn); background: rgba(245, 158, 11, 0.05); margin-bottom: 10px; display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 1.2rem;">⚠️</span>
+                    <span style="color: var(--text); font-weight: 500;">${alert.message}</span>
+                </div>
+            `).join('')
+        } else if (alertsContainer) {
+            alertsContainer.innerHTML = ''
+        }
+
         const transactionList = data.transactions || []
         if (Array.isArray(transactionList)) {
             fullOutRecents(transactionList)
@@ -116,14 +130,18 @@ function fullOutRecents(shoppingList) {
     const dataRaw = shopping.date || new Date()
     const category = shopping.category || 'Geral'
     const value = shopping.value || shopping.amount || 0
+    const isExpense = shopping.isExpense !== undefined ? shopping.isExpense : true
     const formattedDate = new Date(dataRaw).toLocaleDateString('pt-BR')
     const formattedValue = formatCoin(value)
+    const colorClass = isExpense ? 'text-danger' : 'text-success'
+    const prefix = isExpense ? '-' : '+'
+    
     tbody.innerHTML += `
       <tr>
         <td>${description}</td>
         <td>${formattedDate}</td>
         <td><span class="chip">${category}</span></td>
-        <td>${formattedValue}</td>
+        <td class="${colorClass}" style="font-weight: 600;">${prefix} ${formattedValue}</td>
       </tr>
     `
   })
@@ -303,3 +321,50 @@ window.addEventListener('DOMContentLoaded', () => {
     setupFilters('tblShoppings', 'searchShopping', 'filterStatus')
     setupFilters('tblInvoices', 'searchInvoice', 'filterStatus')
 })
+
+async function exportTransactions() {
+    const token = localStorage.getItem('token')
+    if (!token) return
+    
+    try {
+        const response = await fetch('http://localhost:3000/api/finance/summary', {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+        const data = await response.json()
+        const transactions = data.transactions || []
+        
+        if (transactions.length === 0) {
+            alert('Nenhuma transação para exportar.')
+            return
+        }
+        
+        const headers = ['Descrição', 'Data', 'Categoria', 'Valor', 'Tipo']
+        const csvRows = [headers.join(',')]
+        
+        transactions.forEach(t => {
+            const row = [
+                `"${t.description}"`,
+                new Date(t.date).toLocaleDateString('pt-BR'),
+                `"${t.category}"`,
+                t.value,
+                t.type
+            ]
+            csvRows.push(row.join(','))
+        })
+        
+        const csvContent = csvRows.join('\n')
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.setAttribute('href', url)
+        link.setAttribute('download', `transacoes_${new Date().toISOString().split('T')[0]}.csv`)
+        link.style.visibility = 'hidden'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+    } catch (error) {
+        console.error('Erro ao exportar:', error)
+        alert('Erro ao exportar transações.')
+    }
+}

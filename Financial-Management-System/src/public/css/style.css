@@ -211,3 +211,6 @@ tr:has(.row-checkbox:checked) {
 .btn-remove {
   background-color: #e74c3c;
 }
+.text-success { color: var(--brand) !important; }
+.text-danger { color: var(--danger) !important; }
+.text-warn { color: var(--warn) !important; }
