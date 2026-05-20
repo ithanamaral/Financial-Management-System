@@ -26,7 +26,7 @@ app.use('/api/invoice', invoiceRoutes)
 
 // ROTA INICIAL
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'))
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'))
 })
 
 app.listen(3000, () => {
